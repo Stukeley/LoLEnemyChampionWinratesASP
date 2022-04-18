@@ -1,0 +1,15 @@
+﻿@model Dictionary<string, WinLossStat>
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Specific Champion Winrates</h2>
+<h3>Winrate means the percentage of games that champion won while in the enemy team.</h3>
+
+@foreach (var pair in Model)
+{
+    // Display the pair as a paragraph: name, wins, losses, winrate
+    <p>@pair.Key - @pair.Value.Wins W / @pair.Value.Losses L - @pair.Value.WinrateString</p>
+}
