@@ -27,11 +27,12 @@ public class HomeController : Controller
 		return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 	}
 
-	public async Task<IActionResult> ParseGames()
+	[HttpPost]
+	public async Task<IActionResult> ParseGames(InputModel input)
 	{
-		var summonerNames = new [] {"Borpa", "Milkshake"};
-		var region = "eun1";
-		var regionGeneral = "europe";
+		var summonerNames = new [] {input.SummonerName};
+		var region = input.SummonerRegion;
+		var regionGeneral = input.SummonerRegionGeneral;
 		
 		var gameData = new ChampionWinLossStatCollection();
 
@@ -89,7 +90,7 @@ public class HomeController : Controller
 			}
 		}
 		
-		// Order the dictionary based on winrates.
+		gameData.FixChampionNames();
 		gameData.OrderDictionary();
 
 		return View(gameData);

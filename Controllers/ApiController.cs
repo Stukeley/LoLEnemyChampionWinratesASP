@@ -1,4 +1,5 @@
 ﻿using LoLEnemyChampionWinratesASP.Exceptions;
+using LoLEnemyChampionWinratesASP.Helpers;
 using LoLEnemyChampionWinratesASP.Models;
 using Newtonsoft.Json;
 
@@ -6,7 +7,7 @@ namespace LoLEnemyChampionWinratesASP.Controllers;
 
 public static class ApiController
 {
-	private const string API_KEY = "REDACTED";
+	private static readonly string API_KEY;
 
 	private static int _requestCount;
 	public static int RequestCount
@@ -38,6 +39,8 @@ public static class ApiController
 	static ApiController()
 	{
 		Client = new HttpClient();
+
+		API_KEY = ApiKeyHelper.GetApiKey();
 	}
 	
 	public static async Task<string> GetAccountPuuid(string summonerName, string region)
@@ -62,7 +65,7 @@ public static class ApiController
 
 	public static async Task<List<string>> GetMatchListInfo(string puuid, string regionGeneral)
 	{
-		var url = $"https://{regionGeneral}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?api_key={API_KEY}";
+		var url = $"https://{regionGeneral}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count=100&api_key={API_KEY}";
 		
 		var response = await Client.GetAsync(url);
 
