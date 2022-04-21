@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using LoLEnemyChampionWinratesASP.Exceptions;
 using LoLEnemyChampionWinratesASP.Extensions;
 using LoLEnemyChampionWinratesASP.Helpers;
 using Microsoft.AspNetCore.Mvc;
@@ -32,23 +33,64 @@ public class HomeController : Controller
 		var region = "eun1";
 		var regionGeneral = "europe";
 		
-		var gameData = new Dictionary<string, WinLossStat>();
+		var gameData = new ChampionWinLossStatCollection();
+
+		// Step 1 - get PUUID of all accounts.
+		// Step 2 - get match ids for all accounts, merge into one collection.
+		// Step 3 - get match info for all match ids. <- Keep track of progress here.
+		
+		var puuids = new List<string>();
 
 		foreach (var summonerName in summonerNames)
 		{
-			var puuid = await ApiController.GetAccountPuuid(summonerName, region);
+			try
+			{
+				var puuid = await ApiController.GetAccountPuuid(summonerName, region);
+				puuids.Add(puuid);
+			}
+			catch (ApiException ex)
+			{
+				_logger.Log(LogLevel.Error, ex, $"Error while parsing match list for Summoner {summonerName}");
+			}
+		}
+		
+		var matchIds = new List<string>();
+		
+		foreach (var puuid in puuids)
+		{
+			try
+			{
+				var matchList = await ApiController.GetMatchListInfo(puuid, regionGeneral);
+				matchIds.AddRange(matchList);
+			}
+			catch (ApiException ex)
+			{
+				_logger.Log(LogLevel.Error, ex, $"Error while parsing match list for summoner of Puuid {puuid}");
+			}
+		}
 
-			var matchList = await ApiController.GetMatchListInfo(puuid, regionGeneral);
-			
-			foreach (var matchId in matchList)
+		gameData.ExpectedGames = matchIds.Count;
+
+		foreach (var matchId in matchIds)
+		{
+			try
 			{
 				var matchInfo = await ApiController.GetMatchInfo(matchId, regionGeneral);
 
 				var partialDictionary = MatchInfoParser.ParseSingleGame(matchInfo, summonerNames);
 
-				gameData = gameData.Merge(partialDictionary);
+				gameData.ChampionWinLossStats = gameData.ChampionWinLossStats.Merge(partialDictionary);
+
+				gameData.ParsedGames++;
+			}
+			catch (ApiException ex)
+			{
+				_logger.Log(LogLevel.Error, ex, $"Error while parsing match of Id {matchId}");
 			}
 		}
+		
+		// Order the dictionary based on winrates.
+		gameData.OrderDictionary();
 
 		return View(gameData);
 	}

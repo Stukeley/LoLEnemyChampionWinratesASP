@@ -1,4 +1,4 @@
-﻿@model Dictionary<string, WinLossStat>
+﻿@model ChampionWinLossStatCollection
 
 @{
     ViewBag.Title = "title";
@@ -7,9 +7,13 @@
 
 <h2>Specific Champion Winrates</h2>
 <h3>Winrate means the percentage of games that champion won while in the enemy team.</h3>
+<h4>Due to Riot API limitations, this might take a while.</h4>
 
-@foreach (var pair in Model)
+@if (Model.IsComplete)
 {
-    // Display the pair as a paragraph: name, wins, losses, winrate
-    <p>@pair.Key - @pair.Value.Wins W / @pair.Value.Losses L - @pair.Value.WinrateString</p>
+    foreach (var pair in Model.ChampionWinLossStats)
+    {
+        // Display the pair as a paragraph: name, wins, losses, winrate
+        <p>@pair.Key - @pair.Value.Wins W / @pair.Value.Losses L - @pair.Value.WinrateString</p>
+    }
 }

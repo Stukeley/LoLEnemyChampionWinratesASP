@@ -1,4 +1,5 @@
-﻿using LoLEnemyChampionWinratesASP.Models;
+﻿using LoLEnemyChampionWinratesASP.Exceptions;
+using LoLEnemyChampionWinratesASP.Models;
 using Newtonsoft.Json;
 
 namespace LoLEnemyChampionWinratesASP.Controllers;
@@ -32,12 +33,18 @@ public static class ApiController
 		}
 	}
 
+	private static readonly HttpClient Client;
+
+	static ApiController()
+	{
+		Client = new HttpClient();
+	}
+	
 	public static async Task<string> GetAccountPuuid(string summonerName, string region)
 	{
 		var url = $"https://{region}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{summonerName}?api_key={API_KEY}";
 		
-		var client = new HttpClient();
-		var response = await client.GetAsync(url);
+		var response = await Client.GetAsync(url);
 
 		RequestCount++;
 
@@ -49,18 +56,15 @@ public static class ApiController
 
 			return parsed.Puuid;
 		}
-		else
-		{
-			return null;
-		}
+		
+		throw new ApiException(response.ReasonPhrase ?? response.StatusCode.ToString());
 	}
 
 	public static async Task<List<string>> GetMatchListInfo(string puuid, string regionGeneral)
 	{
-		var url = $"https://{regionGeneral}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}?api_key={API_KEY}";
+		var url = $"https://{regionGeneral}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?api_key={API_KEY}";
 		
-		var client = new HttpClient();
-		var response = await client.GetAsync(url);
+		var response = await Client.GetAsync(url);
 
 		RequestCount++;
 
@@ -72,17 +76,15 @@ public static class ApiController
 
 			return parsed;
 		}
-		else
-		{
-			return null;
-		}
+
+		throw new ApiException(response.ReasonPhrase ?? response.StatusCode.ToString());
 	}
 
 	public static async Task<MatchInfo> GetMatchInfo(string gameId, string regionGeneral)
 	{
 		var url = $"https://{regionGeneral}.api.riotgames.com/lol/match/v5/matches/{gameId}?api_key={API_KEY}";
-		var client = new HttpClient();
-		var response = await client.GetAsync(url);
+		
+		var response = await Client.GetAsync(url);
 
 		RequestCount++;
 
@@ -94,9 +96,7 @@ public static class ApiController
 
 			return parsed;
 		}
-		else
-		{
-			return null;
-		}
+		
+		throw new ApiException(response.ReasonPhrase ?? response.StatusCode.ToString());
 	}
 }
