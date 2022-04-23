@@ -1,4 +1,5 @@
-﻿@model ChampionWinLossStatCollection
+﻿@using System.Globalization
+@model ChampionWinLossStatCollection
 
 @{
     ViewBag.Title = "title";
@@ -11,9 +12,26 @@
 
 @if (Model.IsComplete)
 {
-    foreach (var pair in Model.ChampionWinLossStats)
-    {
-        // Display the pair as a paragraph: name, wins, losses, winrate
-        <p>@pair.Key - @pair.Value.Wins W / @pair.Value.Losses L - @pair.Value.WinrateString</p>
-    }
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Champion</th>
+                <th>Wins</th>
+                <th>Losses</th>
+                <th>Winrate</th>
+            </tr>
+        </thead>
+        
+        <tbody>
+            @foreach (var pair in Model.ChampionWinLossStats)
+            {
+                <tr>
+                    <td>@pair.Key</td>
+                    <td>@pair.Value.Wins</td>
+                    <td>@pair.Value.Losses</td>
+                    <td>@Math.Round(pair.Value.Winrate, 2).ToString(CultureInfo.InvariantCulture)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }

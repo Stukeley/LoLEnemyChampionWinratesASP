@@ -35,18 +35,25 @@ public static class ChampionNameHelper
 			return fixedName;
 		}
 		
-		// 3. Add a space between capital letters.
-		fixedName = string.Concat(name.Select(c => char.IsUpper(c) ? " " + c : c.ToString())).TrimStart();
-		
-		// 4. In case of Dr Mundo, add a dot.
-		if (fixedName == "Dr Mundo")
+		// 3. Replace JarvanIV with Jarvan IV
+		if (name.Equals("JarvanIV", StringComparison.OrdinalIgnoreCase))
 		{
-			fixedName = "Dr. Mundo.";
+			fixedName = "Jarvan IV";
 			return fixedName;
 		}
 		
-		// 5. In case of void champions, add an apostrophe.
-		if (fixedName.StartsWith("Kai") || fixedName.StartsWith("Kha") || fixedName.StartsWith("Kog"))
+		// 4. Add a space between capital letters.
+		fixedName = string.Concat(name.Select(c => char.IsUpper(c) ? " " + c : c.ToString())).TrimStart();
+		
+		// 5. In case of Dr Mundo, add a dot.
+		if (fixedName == "Dr Mundo")
+		{
+			fixedName = "Dr. Mundo";
+			return fixedName;
+		}
+		
+		// 6. In case of void champions, add an apostrophe.
+		if (fixedName.StartsWith("Kai") || fixedName.StartsWith("Kha") || fixedName.StartsWith("Kog") || fixedName.StartsWith("Rek"))
 		{
 			fixedName = name.Substring(0,3) + "'" + name.Substring(3);
 		}

@@ -22,6 +22,7 @@ public class ChampionWinLossStatCollection
 	{
 		ChampionWinLossStats = ChampionWinLossStats.OrderByDescending(x => x.Value.Winrate)
 			.ThenByDescending(y=>y.Value.Wins + y.Value.Losses)
+			.ThenBy(z=>z.Key)
 			.ToDictionary(x => x.Key, x => x.Value);
 	}
 
